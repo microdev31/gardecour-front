@@ -1,0 +1,92 @@
+/* ── layout.module.css ───────────────────────────────────────────────────── */
+
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-xl);
+  height: 68px;
+  background: rgba(250, 248, 243, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--parchment);
+}
+
+.logo {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--slate);
+  letter-spacing: -0.01em;
+}
+.logo em {
+  font-style: italic;
+  color: var(--apricot-dark);
+}
+
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.navLink {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--ink-light);
+  padding: 6px 4px;
+  position: relative;
+  transition: color var(--duration);
+}
+.navLink::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 0; height: 2px;
+  background: var(--slate);
+  border-radius: 1px;
+  transition: width var(--duration) var(--ease-out);
+}
+.navLink:hover { color: var(--slate); }
+.navLink:hover::after { width: 100%; }
+
+.navBtn {
+  background: none;
+  border: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--muted);
+  padding: 6px 4px;
+  transition: color var(--duration);
+}
+.navBtn:hover { color: var(--slate); }
+
+.navBtnPrimary {
+  background: var(--slate);
+  color: white;
+  padding: 9px 22px;
+  border-radius: var(--radius-full);
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition: background var(--duration), transform var(--duration) var(--ease-out), box-shadow var(--duration);
+  box-shadow: 0 3px 12px rgba(183, 81, 103, 0.25);
+}
+.navBtnPrimary:hover {
+  background: var(--slate-light);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 18px rgba(183, 81, 103, 0.30);
+}
+
+.pageLayout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 640px) {
+  .navbar { padding: 0 var(--space-md); }
+  .navLinks .navLink:not(:last-child) { display: none; }
+}

@@ -1,0 +1,112 @@
+/* ── Auth.module.css ─────────────────────────────────────────────────────── */
+
+.authWrap {
+  position: relative;
+  min-height: calc(100vh - 68px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2xl) var(--space-md);
+  overflow: hidden;
+}
+
+.authDecor {
+  position: absolute;
+  top: -200px; right: -150px;
+  width: 700px; height: 700px;
+  border-radius: 48% 52% 62% 38% / 44% 56% 44% 56%;
+  background: radial-gradient(circle, rgba(44,74,110,0.07) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.authCard {
+  width: 100%;
+  max-width: 500px;
+  padding: 44px 48px;
+  position: relative;
+  z-index: 1;
+  animation: scaleIn 0.35s var(--ease-out) both;
+}
+
+.authHeader { margin-bottom: var(--space-lg); }
+
+.authTitle {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.authSub { font-size: 0.92rem; color: var(--muted); }
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.fieldRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+.chipGroup { display: flex; flex-direction: column; gap: 8px; }
+.chipLabel { font-size: 0.85rem; font-weight: 600; color: var(--ink-light); letter-spacing: 0.02em; }
+.chips     { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.formActions {
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: space-between;
+  padding-top: 4px;
+}
+
+.apiError {
+  background: rgba(217, 79, 79, 0.08);
+  border: 1px solid rgba(217, 79, 79, 0.2);
+  color: #D94F4F;
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.85rem;
+}
+
+.authSwitch { text-align: center; font-size: 0.88rem; color: var(--muted); margin-top: var(--space-md); }
+.authLink   { color: var(--slate); font-weight: 600; transition: color var(--duration); }
+.authLink:hover { color: var(--slate-light); }
+
+/* Sélecteur de rôle */
+.roleToggle {
+  display: flex;
+  background: var(--ivory-warm);
+  border-radius: var(--radius-full);
+  padding: 4px;
+  margin-bottom: var(--space-lg);
+  gap: 4px;
+}
+
+.roleBtn {
+  flex: 1;
+  padding: 9px;
+  border-radius: var(--radius-full);
+  border: none;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--muted);
+  transition: all var(--duration) var(--ease-out);
+  cursor: pointer;
+}
+
+.roleBtnActive {
+  background: white;
+  color: var(--slate);
+  box-shadow: var(--shadow-sm);
+}
+
+@media (max-width: 560px) {
+  .authCard { padding: 28px 24px; }
+  .fieldRow { grid-template-columns: 1fr; }
+}
