@@ -22,16 +22,6 @@ const PageLoader = () => (
   </div>
 )
 
-const PlaceholderPage: React.FC<{ title: string }> = ({ title }) => (
-  <div style={{
-    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-    minHeight: 'calc(100vh - 68px)', gap: 16, fontFamily: 'var(--font-body)', color: 'var(--muted)'
-  }}>
-    <span style={{ fontSize: '3rem' }}>🚧</span>
-    <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.8rem', color: 'var(--ink)' }}>{title}</h2>
-    <p>Cette page sera disponible dans le prochain sprint.</p>
-  </div>
-)
 
 const App: React.FC = () => (
   <BrowserRouter>

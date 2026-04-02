@@ -8,7 +8,7 @@ import styles from './layout.module.css'
 /* ── Navbar ──────────────────────────────────────────────────────────────── */
 
 export const Navbar: React.FC = () => {
-  const { isAuthenticated, user, logout } = useAuthStore()
+  const { isAuthenticated, logout } = useAuthStore()
   const navigate = useNavigate()
 
   const handleLogout = () => { logout(); navigate('/') }

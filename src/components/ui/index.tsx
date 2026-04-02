@@ -134,10 +134,11 @@ export const Chip: React.FC<ChipProps> = ({ selected, onClick, children, color =
 interface BadgeProps {
   children: React.ReactNode
   color?: 'slate' | 'moss' | 'apricot' | 'parchment'
+  className?: string
 }
 
-export const Badge: React.FC<BadgeProps> = ({ children, color = 'slate' }) => (
-  <span className={clsx(styles.badge, styles[`badge-${color}`])}>{children}</span>
+export const Badge: React.FC<BadgeProps> = ({ children, color = 'slate', className }) => (
+  <span className={clsx(styles.badge, styles[`badge-${color}`], className)}>{children}</span>
 )
 
 /* ── Avatar ──────────────────────────────────────────────────────────────── */
