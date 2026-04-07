@@ -52,6 +52,8 @@ export const authApi = {
     api.post<{ access: string; refresh: string }>('/auth/login/', data),
 
   me: () => api.get('/auth/me/'),
+
+  verify: (token: string) => api.get(`/auth/verify/${token}/`),
 }
 
 /* ── Profils ───────────────────────────────────────────────────────────── */

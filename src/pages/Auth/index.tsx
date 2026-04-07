@@ -9,6 +9,7 @@ import { PageLayout } from '@/components/layout'
 import { Button, Input, Chip, ProgressBar, Card } from '@/components/ui'
 import { authApi, profilesApi } from '@/services/api'
 import { useAuthStore } from '@/store/authStore'
+import { toast } from '@/store/toastStore'
 import type { UserRole, Availability, GuardLocation } from '@/types'
 import styles from './Auth.module.css'
 
@@ -36,6 +37,11 @@ export const LoginPage: React.FC = () => {
       setTokens(tokens.access, tokens.refresh)
       const { data: user } = await authApi.me()
       setUser(user)
+      if (!user.is_verified) {
+        setApiError('unverified')
+        return
+      }
+      toast.success('Bienvenue !')
       navigate('/search')
     } catch {
       setApiError('Email ou mot de passe incorrect.')
@@ -68,7 +74,16 @@ export const LoginPage: React.FC = () => {
               {...register('password')}
             />
 
-            {apiError && <p className={styles.apiError}>{apiError}</p>}
+            {apiError === 'unverified' ? (
+              <div className={styles.unverifiedBanner}>
+                <span aria-hidden="true">⚠</span>
+                <span>
+                  <strong>Email non vérifié.</strong> Consultez votre boîte mail et cliquez sur le lien d'activation avant de vous connecter.
+                </span>
+              </div>
+            ) : apiError ? (
+              <p className={styles.apiError}>{apiError}</p>
+            ) : null}
 
             <Button type="submit" fullWidth loading={isSubmitting} style={{ marginTop: 8 }}>
               Se connecter
@@ -122,6 +137,7 @@ export const RegisterPage: React.FC = () => {
   const [searchParams] = useSearchParams()
 
   const [step, setStep]                   = useState(1)
+  const [pendingEmail, setPendingEmail]   = useState<string | null>(null)
   const [role, setRole]                   = useState<UserRole>(
     (searchParams.get('role')?.toUpperCase() as UserRole) || 'PARENT'
   )
@@ -135,19 +151,28 @@ export const RegisterPage: React.FC = () => {
   const form1 = useForm<Step1Form>({ resolver: zodResolver(step1Schema) })
   const onStep1 = (data: Step1Form) => { setStep1Data(data); setStep(2) }
 
+  const finishRegistration = async (profileData: unknown) => {
+    if (!step1Data) return
+    setApiError('')
+    await authApi.register({ ...step1Data, role })
+    const { data: tokens } = await authApi.login({ email: step1Data.email, password: step1Data.password })
+    setTokens(tokens.access, tokens.refresh)
+    const { data: user } = await authApi.me()
+    setUser(user)
+    await profilesApi.updateMe(profileData)
+    if (!user.is_verified) {
+      setPendingEmail(step1Data.email)
+      return
+    }
+    toast.success('Compte créé ! Bienvenue sur GardeCoeur.')
+    navigate('/search')
+  }
+
   /* Step 2 — parent */
   const form2P = useForm<ParentStep2Form>({ resolver: zodResolver(parentStep2Schema) })
   const onStep2Parent = async (data: ParentStep2Form) => {
-    if (!step1Data) return
     try {
-      setApiError('')
-      await authApi.register({ ...step1Data, role })
-      const { data: tokens } = await authApi.login({ email: step1Data.email, password: step1Data.password })
-      setTokens(tokens.access, tokens.refresh)
-      const { data: user } = await authApi.me()
-      setUser(user)
-      await profilesApi.updateMe({ ...data, guard_needs: guardNeeds, guard_location: guardLocation })
-      navigate('/search')
+      await finishRegistration({ ...data, guard_needs: guardNeeds, guard_location: guardLocation })
     } catch {
       setApiError('Une erreur est survenue. Vérifiez vos informations.')
     }
@@ -156,22 +181,39 @@ export const RegisterPage: React.FC = () => {
   /* Step 2 — retraité */
   const form2R = useForm<RetiredStep2Form>({ resolver: zodResolver(retiredStep2Schema) })
   const onStep2Retired = async (data: RetiredStep2Form) => {
-    if (!step1Data) return
     try {
-      setApiError('')
-      await authApi.register({ ...step1Data, role })
-      const { data: tokens } = await authApi.login({ email: step1Data.email, password: step1Data.password })
-      setTokens(tokens.access, tokens.refresh)
-      const { data: user } = await authApi.me()
-      setUser(user)
-      await profilesApi.updateMe({ ...data, availability })
-      navigate('/search')
+      await finishRegistration({ ...data, availability })
     } catch {
       setApiError('Une erreur est survenue. Vérifiez vos informations.')
     }
   }
 
   const totalSteps = 2
+
+  /* ── Panel "vérifiez votre email" ── */
+  if (pendingEmail) {
+    return (
+      <PageLayout>
+        <div className={styles.authWrap}>
+          <div className={styles.authDecor} aria-hidden="true" />
+          <Card className={styles.authCard}>
+            <div className={styles.pendingWrap}>
+              <span className={styles.pendingIcon} aria-hidden="true">✉️</span>
+              <h1 className={styles.pendingTitle}>Vérifiez votre email</h1>
+              <p className={styles.pendingSub}>
+                Un email de confirmation a été envoyé à{' '}
+                <span className={styles.pendingEmail}>{pendingEmail}</span>.
+                <br />Cliquez sur le lien pour activer votre compte.
+              </p>
+              <Link to="/login">
+                <Button variant="secondary">Aller à la connexion</Button>
+              </Link>
+            </div>
+          </Card>
+        </div>
+      </PageLayout>
+    )
+  }
 
   return (
     <PageLayout>

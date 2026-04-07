@@ -3,6 +3,8 @@
 import React from 'react'
 import clsx from 'clsx'
 import styles from './ui.module.css'
+import { useToastStore } from '@/store/toastStore'
+import type { ToastVariant } from '@/store/toastStore'
 
 /* ── Button ──────────────────────────────────────────────────────────────── */
 
@@ -206,3 +208,32 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({ steps, current }) => (
     ))}
   </div>
 )
+
+/* ── Toast + ToastContainer ──────────────────────────────────────────────── */
+
+const ICONS: Record<ToastVariant, string> = {
+  success: '✓',
+  error:   '✕',
+  info:    'ℹ',
+}
+
+export const ToastContainer: React.FC = () => {
+  const { toasts, remove } = useToastStore()
+  if (toasts.length === 0) return null
+
+  return (
+    <div className={styles.toastContainer} role="region" aria-live="polite" aria-label="Notifications">
+      {toasts.map((t) => (
+        <div key={t.id} className={clsx(styles.toast, styles[`toast-${t.variant}`])}>
+          <span className={styles.toastIcon} aria-hidden="true">{ICONS[t.variant]}</span>
+          <span className={styles.toastMessage}>{t.message}</span>
+          <button
+            className={styles.toastClose}
+            onClick={() => remove(t.id)}
+            aria-label="Fermer"
+          >×</button>
+        </div>
+      ))}
+    </div>
+  )
+}

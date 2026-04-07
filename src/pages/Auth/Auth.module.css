@@ -106,7 +106,115 @@
   box-shadow: var(--shadow-sm);
 }
 
+/* ── État "email non vérifié" (après inscription ou connexion) ─────────────── */
+
+.pendingWrap {
+  text-align: center;
+  padding: var(--space-lg) 0;
+  animation: fadeUp 0.4s var(--ease-out) both;
+}
+
+.pendingIcon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: var(--space-md);
+}
+
+.pendingTitle {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: var(--space-sm);
+}
+
+.pendingSub {
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  margin-bottom: var(--space-lg);
+}
+
+.pendingEmail {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* Bannière d'avertissement email non vérifié (sur login) */
+.unverifiedBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(186, 162, 117, 0.12);
+  border: 1px solid rgba(186, 162, 117, 0.35);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 0.85rem;
+  color: var(--apricot-dark);
+  line-height: 1.5;
+  margin-bottom: var(--space-sm);
+}
+
+.unverifiedBanner strong { font-weight: 700; }
+
+/* ── Page de vérification email (/verify/:token) ────────────────────────── */
+
+.verifyCard {
+  width: 100%;
+  max-width: 420px;
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: 52px 48px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(235, 229, 216, 0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  text-align: center;
+  animation: scaleIn 0.35s var(--ease-out) both;
+}
+
+.verifyIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: rgba(126, 163, 171, 0.15);
+  color: var(--moss-dark);
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.verifyIconError {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: rgba(217, 79, 79, 0.10);
+  color: #D94F4F;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.verifyTitle {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.verifySub {
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  max-width: 300px;
+}
+
 @media (max-width: 560px) {
-  .authCard { padding: 28px 24px; }
-  .fieldRow { grid-template-columns: 1fr; }
+  .authCard   { padding: 28px 24px; }
+  .verifyCard { padding: 36px 24px; }
+  .fieldRow   { grid-template-columns: 1fr; }
 }

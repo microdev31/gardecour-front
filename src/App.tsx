@@ -1,17 +1,18 @@
 /* ── GardeCoeur — App.tsx (React Router) ───────────────────────────────── */
 
 import React, { Suspense, lazy } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { ProtectedRoute } from '@/components/layout'
-import { Spinner } from '@/components/ui'
+import { Spinner, ToastContainer } from '@/components/ui'
 
 // Lazy loading des pages
 const HomePage          = lazy(() => import('@/pages/Home'))
 const LoginPage         = lazy(() => import('@/pages/Auth').then(m => ({ default: m.LoginPage })))
 const RegisterPage      = lazy(() => import('@/pages/Auth').then(m => ({ default: m.RegisterPage })))
+const VerifyEmailPage   = lazy(() => import('@/pages/Auth/VerifyEmail'))
 const ProfileDetailPage = lazy(() => import('@/pages/Profile'))
+const NotFoundPage      = lazy(() => import('@/pages/NotFound'))
 
-// Placeholder pages (à développer dans le sprint suivant)
 const SearchPage   = lazy(() => import('@/pages/Search'))
 const MessagesPage = lazy(() => import('@/pages/Messages'))
 const MyProfile    = lazy(() => import('@/pages/MyProfile'))
@@ -22,15 +23,15 @@ const PageLoader = () => (
   </div>
 )
 
-
 const App: React.FC = () => (
   <BrowserRouter>
     <Suspense fallback={<PageLoader />}>
       <Routes>
         {/* ── Public ── */}
-        <Route path="/"         element={<HomePage />} />
-        <Route path="/login"    element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/"                  element={<HomePage />} />
+        <Route path="/login"             element={<LoginPage />} />
+        <Route path="/register"          element={<RegisterPage />} />
+        <Route path="/verify/:token"     element={<VerifyEmailPage />} />
 
         {/* ── Protégées ── */}
         <Route path="/search" element={
@@ -46,10 +47,12 @@ const App: React.FC = () => (
           <ProtectedRoute><MessagesPage /></ProtectedRoute>
         } />
 
-        {/* ── Fallback ── */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* ── 404 ── */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>
+
+    <ToastContainer />
   </BrowserRouter>
 )
 
