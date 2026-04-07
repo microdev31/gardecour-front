@@ -1,9 +1,9 @@
 /* ── GardeCoeur — Page Recherche / Listing ───────────────────────────────── */
 
-import React, { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PageLayout } from '@/components/layout'
-import { Button, Select, Chip, Badge, Avatar, Card } from '@/components/ui'
+import { Button, Select, Chip, Badge, Avatar, Card, Spinner } from '@/components/ui'
 import { profilesApi } from '@/services/api'
 import {
   RetiredProfile,
@@ -13,6 +13,8 @@ import {
   GUARD_LOCATION_LABELS,
 } from '@/types'
 import styles from './Search.module.css'
+
+const MapView = lazy(() => import('@/components/MapView'))
 
 /* ── Types internes ──────────────────────────────────────────────────────── */
 
@@ -146,6 +148,8 @@ const ErrorState: React.FC<{ onRetry: () => void }> = ({ onRetry }) => (
 
 /* ── Page principale ─────────────────────────────────────────────────────── */
 
+type ViewMode = 'list' | 'map'
+
 const SearchPage: React.FC = () => {
   const navigate = useNavigate()
 
@@ -154,6 +158,7 @@ const SearchPage: React.FC = () => {
   const [loading, setLoading]   = useState(true)
   const [error, setError]       = useState(false)
   const [geoBlocked, setGeoBlocked] = useState(false)
+  const [viewMode, setViewMode] = useState<ViewMode>('list')
 
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const abortRef      = useRef<AbortController | null>(null)
@@ -350,15 +355,35 @@ const SearchPage: React.FC = () => {
       {/* ── Contenu principal ── */}
       <main className={styles.main}>
 
-        {/* Compteur */}
-        {!loading && !error && (
-          <p className={styles.counter}>
-            <strong>{profiles.length}</strong>{' '}
-            {profiles.length === 1
-              ? 'retraité disponible près de vous'
-              : 'retraités disponibles près de vous'}
-          </p>
-        )}
+        {/* Compteur + toggle vue */}
+        <div className={styles.toolbar}>
+          {!loading && !error && (
+            <p className={styles.counter}>
+              <strong>{profiles.length}</strong>{' '}
+              {profiles.length === 1
+                ? 'retraité disponible près de vous'
+                : 'retraités disponibles près de vous'}
+            </p>
+          )}
+          {!loading && !error && profiles.length > 0 && (
+            <div className={styles.viewToggle}>
+              <button
+                className={`${styles.viewBtn} ${viewMode === 'list' ? styles.viewBtnActive : ''}`}
+                onClick={() => setViewMode('list')}
+                aria-label="Vue liste"
+              >
+                ☰ Liste
+              </button>
+              <button
+                className={`${styles.viewBtn} ${viewMode === 'map' ? styles.viewBtnActive : ''}`}
+                onClick={() => setViewMode('map')}
+                aria-label="Vue carte"
+              >
+                🗺 Carte
+              </button>
+            </div>
+          )}
+        </div>
 
         {/* Chargement */}
         {loading && (
@@ -372,8 +397,8 @@ const SearchPage: React.FC = () => {
         {/* Erreur */}
         {!loading && error && <ErrorState onRetry={handleRetry} />}
 
-        {/* Résultats */}
-        {!loading && !error && profiles.length > 0 && (
+        {/* Vue liste */}
+        {!loading && !error && profiles.length > 0 && viewMode === 'list' && (
           <div className={styles.grid}>
             {profiles.map((profile, i) => (
               <div
@@ -386,6 +411,20 @@ const SearchPage: React.FC = () => {
                 />
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Vue carte */}
+        {!loading && !error && profiles.length > 0 && viewMode === 'map' && (
+          <div className={styles.mapWrap}>
+            <Suspense fallback={<div className={styles.mapLoader}><Spinner size="lg" /></div>}>
+              <MapView
+                profiles={profiles}
+                userLat={filters.lat}
+                userLng={filters.lng}
+                onProfileClick={(id) => navigate(`/profile/${id}`)}
+              />
+            </Suspense>
           </div>
         )}
 

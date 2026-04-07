@@ -60,6 +60,8 @@ export interface RetiredProfile {
   avatar: string | null
   home: Home | null
   distance: number | null
+  lat: number | null
+  lng: number | null
   created_at: string
 }
 

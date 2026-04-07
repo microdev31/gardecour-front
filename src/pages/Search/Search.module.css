@@ -317,3 +317,61 @@
   max-width: 340px;
   line-height: 1.6;
 }
+
+/* ── Toolbar (compteur + toggle vue) ─────────────────────────────────────── */
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.toolbar .counter { margin-bottom: 0; }
+
+.viewToggle {
+  display: flex;
+  background: var(--ivory-warm);
+  border-radius: var(--radius-full);
+  padding: 3px;
+  gap: 2px;
+}
+
+.viewBtn {
+  padding: 6px 16px;
+  border: none;
+  border-radius: var(--radius-full);
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all var(--duration) var(--ease-out);
+  white-space: nowrap;
+}
+
+.viewBtnActive {
+  background: white;
+  color: var(--slate);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── Carte ───────────────────────────────────────────────────────────────── */
+
+.mapWrap {
+  width: 100%;
+  min-height: 520px;
+  animation: fadeIn 0.3s var(--ease-out) both;
+}
+
+.mapLoader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 520px;
+  background: var(--ivory-warm);
+  border-radius: var(--radius-lg);
+}
