@@ -10,7 +10,7 @@ import { PageLayout } from '@/components/layout'
 import { Avatar, Badge, Button, Spinner, Chip } from '@/components/ui'
 import { useAuthStore } from '@/store/authStore'
 import { profilesApi } from '@/services/api'
-import type { ParentProfile, RetiredProfile, UserRole } from '@/types'
+import type { ParentProfile, RetiredProfile, TimeSlot, UserRole } from '@/types'
 import { AVAILABILITY_LABELS, GUARD_LOCATION_LABELS } from '@/types'
 import styles from './MyProfile.module.css'
 
@@ -73,7 +73,7 @@ type ChildrenData = z.infer<typeof childrenSchema>
 
 /* ── Constants ───────────────────────────────────────────────────────────── */
 
-type Section = 'personal' | 'availability' | 'home' | 'children'
+type Section = 'personal' | 'availability' | 'home' | 'children' | 'timeslots' | 'identity'
 
 const SECTIONS_PARENT: { id: Section; label: string }[] = [
   { id: 'personal',     label: 'Informations personnelles' },
@@ -86,6 +86,8 @@ const SECTIONS_RETIRED: { id: Section; label: string }[] = [
   { id: 'personal',     label: 'Informations personnelles' },
   { id: 'availability', label: 'Disponibilité & garde' },
   { id: 'home',         label: 'Mon logement' },
+  { id: 'timeslots',    label: 'Créneaux horaires' },
+  { id: 'identity',     label: 'Vérification d\'identité' },
 ]
 
 const DEFAULT_HOME: HomeData = {
@@ -541,6 +543,187 @@ const ChildrenForm: React.FC<{
   )
 }
 
+/* ── Timeslots form ──────────────────────────────────────────────────────── */
+
+const DAY_LABELS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
+
+const TimeSlotsForm: React.FC = () => {
+  const [slots, setSlots]     = useState<TimeSlot[]>([])
+  const [loading, setLoading] = useState(true)
+  const [adding, setAdding]   = useState(false)
+  const [day, setDay]         = useState(0)
+  const [startTime, setStartTime] = useState('09:00')
+  const [endTime, setEndTime]     = useState('12:00')
+  const [error, setError]     = useState('')
+
+  useEffect(() => {
+    profilesApi.getTimeSlots()
+      .then(res => setSlots(res.data))
+      .catch(() => setError('Impossible de charger les créneaux.'))
+      .finally(() => setLoading(false))
+  }, [])
+
+  const handleAdd = async () => {
+    if (endTime <= startTime) { setError('L\'heure de fin doit être après l\'heure de début.'); return }
+    try {
+      setAdding(true)
+      setError('')
+      const res = await profilesApi.addTimeSlot({ day, start_time: startTime, end_time: endTime })
+      setSlots(prev => [...prev, res.data])
+    } catch {
+      setError('Erreur lors de l\'ajout. Ce créneau existe peut-être déjà.')
+    } finally {
+      setAdding(false)
+    }
+  }
+
+  const handleDelete = async (id: number) => {
+    try {
+      await profilesApi.deleteTimeSlot(id)
+      setSlots(prev => prev.filter(s => s.id !== id))
+    } catch {
+      setError('Impossible de supprimer ce créneau.')
+    }
+  }
+
+  if (loading) return <div className={styles.formInner}><Spinner size="sm" /></div>
+
+  return (
+    <div className={styles.formInner}>
+      <p className={styles.fieldHint}>
+        Définissez vos créneaux de disponibilité hebdomadaires. Les familles pourront les consulter sur votre profil.
+      </p>
+
+      {/* Formulaire d'ajout */}
+      <div className={styles.slotAddRow}>
+        <div className={styles.fieldGroup}>
+          <label className={styles.label}>Jour</label>
+          <select className={styles.input} value={day} onChange={e => setDay(Number(e.target.value))}>
+            {DAY_LABELS.map((l, i) => <option key={i} value={i}>{l}</option>)}
+          </select>
+        </div>
+        <div className={styles.fieldGroup}>
+          <label className={styles.label}>Début</label>
+          <input type="time" className={styles.input} value={startTime} onChange={e => setStartTime(e.target.value)} />
+        </div>
+        <div className={styles.fieldGroup}>
+          <label className={styles.label}>Fin</label>
+          <input type="time" className={styles.input} value={endTime} onChange={e => setEndTime(e.target.value)} />
+        </div>
+        <Button type="button" size="sm" loading={adding} onClick={handleAdd} style={{ alignSelf: 'flex-end' }}>
+          + Ajouter
+        </Button>
+      </div>
+
+      {error && <p className={styles.fieldError}>{error}</p>}
+
+      {/* Liste des créneaux */}
+      {slots.length === 0 ? (
+        <p className={styles.emptyText}>Aucun créneau défini.</p>
+      ) : (
+        <div className={styles.slotList}>
+          {slots
+            .slice()
+            .sort((a, b) => a.day - b.day || a.start_time.localeCompare(b.start_time))
+            .map(slot => (
+              <div key={slot.id} className={styles.slotItem}>
+                <span className={styles.slotDay}>{DAY_LABELS[slot.day]}</span>
+                <span className={styles.slotTime}>
+                  {slot.start_time.slice(0, 5)} – {slot.end_time.slice(0, 5)}
+                </span>
+                <button
+                  type="button"
+                  className={styles.removeBtn}
+                  onClick={() => handleDelete(slot.id)}
+                  aria-label="Supprimer ce créneau"
+                >✕</button>
+              </div>
+            ))
+          }
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ── Identity verification form ──────────────────────────────────────────── */
+
+const IdDocumentForm: React.FC<{ profile: RetiredProfile }> = ({ profile }) => {
+  const [uploading, setUploading] = useState(false)
+  const [success, setSuccess]     = useState(false)
+  const [error, setError]         = useState('')
+  const fileRef = useRef<HTMLInputElement>(null)
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (file.size > 10 * 1024 * 1024) { setError('Fichier trop volumineux (max 10 Mo).'); return }
+    try {
+      setUploading(true)
+      setError('')
+      await profilesApi.uploadIdDocument(file)
+      setSuccess(true)
+    } catch {
+      setError('Erreur lors de l\'envoi. Réessayez.')
+    } finally {
+      setUploading(false)
+      if (fileRef.current) fileRef.current.value = ''
+    }
+  }
+
+  return (
+    <div className={styles.formInner}>
+      <div className={clsx(styles.idStatusBox, profile.is_id_verified ? styles.idVerified : styles.idPending)}>
+        <span className={styles.idStatusIcon}>{profile.is_id_verified ? '✅' : '⏳'}</span>
+        <div>
+          <p className={styles.idStatusTitle}>
+            {profile.is_id_verified ? 'Identité vérifiée' : 'Vérification en attente'}
+          </p>
+          <p className={styles.idStatusDesc}>
+            {profile.is_id_verified
+              ? 'Votre identité a été confirmée par notre équipe. Le badge "Vérifié" est visible sur votre profil.'
+              : 'Envoyez une pièce d\'identité pour obtenir le badge "Vérifié" et inspirer confiance aux familles.'}
+          </p>
+        </div>
+      </div>
+
+      {!profile.is_id_verified && (
+        <>
+          <p className={styles.fieldHint}>
+            Formats acceptés : JPG, PNG, PDF · Taille max : 10 Mo<br />
+            Documents acceptés : carte d'identité, passeport, permis de conduire.
+          </p>
+
+          {success ? (
+            <div className={styles.idSuccess}>
+              ✓ Document envoyé. Notre équipe le vérifiera sous 48h.
+            </div>
+          ) : (
+            <>
+              <Button
+                type="button"
+                variant="secondary"
+                loading={uploading}
+                onClick={() => fileRef.current?.click()}
+              >
+                📎 Envoyer ma pièce d'identité
+              </Button>
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/*,.pdf"
+                className={styles.hiddenInput}
+                onChange={handleUpload}
+              />
+            </>
+          )}
+          {error && <p className={styles.fieldError}>{error}</p>}
+        </>
+      )}
+    </div>
+  )
+}
+
 /* ── Main page ───────────────────────────────────────────────────────────── */
 
 const MyProfilePage: React.FC = () => {
@@ -767,6 +950,12 @@ const MyProfilePage: React.FC = () => {
                       onSave={handleSave}
                       onDirtyChange={onDirtyChildren}
                     />
+                  )}
+                  {activeSection === 'timeslots' && role === 'RETIRED' && (
+                    <TimeSlotsForm key="timeslots" />
+                  )}
+                  {activeSection === 'identity' && role === 'RETIRED' && (
+                    <IdDocumentForm key="identity" profile={profile as RetiredProfile} />
                   )}
                 </>
               )}

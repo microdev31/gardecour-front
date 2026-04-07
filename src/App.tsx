@@ -15,8 +15,10 @@ const NotFoundPage      = lazy(() => import('@/pages/NotFound'))
 
 const SearchPage   = lazy(() => import('@/pages/Search'))
 const MessagesPage = lazy(() => import('@/pages/Messages'))
-const MyProfile        = lazy(() => import('@/pages/MyProfile'))
+const MyProfile         = lazy(() => import('@/pages/MyProfile'))
 const DeleteAccountPage = lazy(() => import('@/pages/DeleteAccount'))
+const CGUPage           = lazy(() => import('@/pages/Legal/CGU'))
+const PrivacyPage       = lazy(() => import('@/pages/Legal/Privacy'))
 
 const PageLoader = () => (
   <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
@@ -33,6 +35,8 @@ const App: React.FC = () => (
         <Route path="/login"             element={<LoginPage />} />
         <Route path="/register"          element={<RegisterPage />} />
         <Route path="/verify/:token"     element={<VerifyEmailPage />} />
+        <Route path="/cgu"               element={<CGUPage />} />
+        <Route path="/confidentialite"   element={<PrivacyPage />} />
 
         {/* ── Protégées ── */}
         <Route path="/search" element={
