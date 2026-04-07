@@ -45,7 +45,7 @@ api.interceptors.response.use(
 /* ── Auth ──────────────────────────────────────────────────────────────── */
 
 export const authApi = {
-  register: (data: { email: string; role: string; password: string; password2: string }) =>
+  register: (data: { email: string; role: string; password: string; password2: string; accept_terms: boolean }) =>
     api.post('/auth/register/', data),
 
   login: (data: { email: string; password: string }) =>
@@ -79,6 +79,36 @@ export const profilesApi = {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
   },
+
+  getReviews: (retiredId: number) =>
+    api.get(`/profiles/retired/${retiredId}/reviews/`),
+
+  createReview: (data: { connection: number; rating: number; comment?: string }) =>
+    api.post('/profiles/reviews/', data),
+
+  getTimeSlots: () => api.get('/profiles/me/timeslots/'),
+
+  addTimeSlot: (data: { day: number; start_time: string; end_time: string }) =>
+    api.post('/profiles/me/timeslots/', data),
+
+  deleteTimeSlot: (id: number) => api.delete(`/profiles/me/timeslots/${id}/`),
+
+  uploadIdDocument: (file: File) => {
+    const form = new FormData()
+    form.append('id_document', file)
+    return api.post('/profiles/me/id-document/', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+  },
+
+  deleteAccount: () => api.delete('/auth/delete-account/'),
+}
+
+/* ── Modération ─────────────────────────────────────────────────────────── */
+
+export const moderationApi = {
+  report: (data: { reported_user: number; reason: string; details?: string }) =>
+    api.post('/moderation/reports/', data),
 }
 
 /* ── Connexions ────────────────────────────────────────────────────────── */

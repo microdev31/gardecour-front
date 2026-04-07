@@ -9,7 +9,7 @@ import type { ToastVariant } from '@/store/toastStore'
 /* ── Button ──────────────────────────────────────────────────────────────── */
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'moss'
+  variant?: 'primary' | 'secondary' | 'ghost' | 'moss' | 'danger'
   size?: 'sm' | 'md' | 'lg'
   loading?: boolean
   fullWidth?: boolean

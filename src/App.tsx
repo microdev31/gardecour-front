@@ -15,7 +15,8 @@ const NotFoundPage      = lazy(() => import('@/pages/NotFound'))
 
 const SearchPage   = lazy(() => import('@/pages/Search'))
 const MessagesPage = lazy(() => import('@/pages/Messages'))
-const MyProfile    = lazy(() => import('@/pages/MyProfile'))
+const MyProfile        = lazy(() => import('@/pages/MyProfile'))
+const DeleteAccountPage = lazy(() => import('@/pages/DeleteAccount'))
 
 const PageLoader = () => (
   <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
@@ -45,6 +46,9 @@ const App: React.FC = () => (
         } />
         <Route path="/messages" element={
           <ProtectedRoute><MessagesPage /></ProtectedRoute>
+        } />
+        <Route path="/delete-account" element={
+          <ProtectedRoute><DeleteAccountPage /></ProtectedRoute>
         } />
 
         {/* ── 404 ── */}

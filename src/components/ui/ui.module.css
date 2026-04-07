@@ -63,6 +63,16 @@
 }
 .btn-ghost:hover:not(:disabled) { background: var(--slate-50); }
 
+.btn-danger {
+  background: #D94F4F;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(217,79,79,0.25);
+}
+.btn-danger:hover:not(:disabled) {
+  background: #c44040;
+  transform: translateY(-2px);
+}
+
 .btn-sm  { height: 36px;  padding: 0 18px; font-size: 0.85rem; }
 .btn-md  { height: 46px;  padding: 0 28px; font-size: 0.95rem; }
 .btn-lg  { height: 54px;  padding: 0 36px; font-size: 1rem; }

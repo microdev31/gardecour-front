@@ -6,12 +6,34 @@ export type GuardLocation = 'HOME' | 'RETIRED' | 'FLEXIBLE'
 export type HomeType = 'HOUSE' | 'APARTMENT'
 export type ConnectionStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'BLOCKED'
 
+export type ReportReason = 'INAPPROPRIATE' | 'FAKE_PROFILE' | 'HARASSMENT' | 'SPAM' | 'OTHER'
+
 export interface User {
   id: number
   email: string
   role: UserRole
   is_verified: boolean
+  terms_accepted_at: string | null
   created_at: string
+}
+
+export interface Review {
+  id: number
+  author: number
+  author_name: string
+  retired: number
+  connection: number
+  rating: number
+  comment: string
+  created_at: string
+}
+
+export interface TimeSlot {
+  id: number
+  day: number
+  day_label: string
+  start_time: string
+  end_time: string
 }
 
 export interface Child {
@@ -57,11 +79,14 @@ export interface RetiredProfile {
   activities: string
   availability: Availability
   guard_location: GuardLocation
+  is_id_verified: boolean
   avatar: string | null
   home: Home | null
   distance: number | null
   lat: number | null
   lng: number | null
+  avg_rating: number | null
+  review_count: number
   created_at: string
 }
 

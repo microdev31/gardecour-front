@@ -213,6 +213,25 @@
   max-width: 300px;
 }
 
+.checkboxLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.87rem;
+  color: var(--ink-light);
+  cursor: pointer;
+  line-height: 1.5;
+}
+
+.checkbox {
+  margin-top: 2px;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--slate);
+}
+
 @media (max-width: 560px) {
   .authCard   { padding: 28px 24px; }
   .verifyCard { padding: 36px 24px; }

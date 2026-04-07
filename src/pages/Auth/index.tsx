@@ -103,9 +103,10 @@ export const LoginPage: React.FC = () => {
 /* ── REGISTER — étape 1 : choix du rôle ─────────────────────────────────── */
 
 const step1Schema = z.object({
-  email:     z.string().email('Email invalide'),
-  password:  z.string().min(8, 'Au moins 8 caractères'),
-  password2: z.string(),
+  email:        z.string().email('Email invalide'),
+  password:     z.string().min(8, 'Au moins 8 caractères'),
+  password2:    z.string(),
+  accept_terms: z.literal(true, { errorMap: () => ({ message: 'Vous devez accepter les CGU.' }) }),
 }).refine(d => d.password === d.password2, { message: 'Les mots de passe ne correspondent pas.', path: ['password2'] })
 
 type Step1Form = z.infer<typeof step1Schema>
@@ -154,7 +155,7 @@ export const RegisterPage: React.FC = () => {
   const finishRegistration = async (profileData: unknown) => {
     if (!step1Data) return
     setApiError('')
-    await authApi.register({ ...step1Data, role })
+    await authApi.register({ ...step1Data, role, accept_terms: step1Data.accept_terms })
     const { data: tokens } = await authApi.login({ email: step1Data.email, password: step1Data.password })
     setTokens(tokens.access, tokens.refresh)
     const { data: user } = await authApi.me()
@@ -266,6 +267,23 @@ export const RegisterPage: React.FC = () => {
                   error={form1.formState.errors.password2?.message}
                   {...form1.register('password2')}
                 />
+                <label className={styles.checkboxLabel}>
+                  <input
+                    type="checkbox"
+                    {...form1.register('accept_terms')}
+                    className={styles.checkbox}
+                  />
+                  <span>
+                    J'accepte les{' '}
+                    <Link to="/cgu" target="_blank" className={styles.authLink}>CGU</Link>
+                    {' '}et la{' '}
+                    <Link to="/confidentialite" target="_blank" className={styles.authLink}>politique de confidentialité</Link>
+                  </span>
+                </label>
+                {form1.formState.errors.accept_terms && (
+                  <p className={styles.apiError}>{form1.formState.errors.accept_terms.message}</p>
+                )}
+
                 <Button type="submit" fullWidth style={{ marginTop: 8 }}>
                   Continuer →
                 </Button>

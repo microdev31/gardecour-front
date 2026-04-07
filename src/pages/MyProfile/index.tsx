@@ -5,6 +5,7 @@ import { useForm, useFieldArray, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import clsx from 'clsx'
+import { Link } from 'react-router-dom'
 import { PageLayout } from '@/components/layout'
 import { Avatar, Badge, Button, Spinner, Chip } from '@/components/ui'
 import { useAuthStore } from '@/store/authStore'
@@ -775,6 +776,16 @@ const MyProfilePage: React.FC = () => {
       </div>
 
       {toast && <Toast message={toast.message} type={toast.type} onHide={hideToast} />}
+
+      {/* RGPD */}
+      <div style={{ textAlign: 'center', marginTop: 32, paddingBottom: 48 }}>
+        <Link
+          to="/delete-account"
+          style={{ fontSize: '0.78rem', color: 'var(--muted)', textDecoration: 'underline' }}
+        >
+          Supprimer mon compte
+        </Link>
+      </div>
     </PageLayout>
   )
 }
